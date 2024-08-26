@@ -18,7 +18,7 @@ app.use(cors(corsOptions));  // Enable CORS with options
 // MongoDB Connection String
 const dbUri = 'mongodb+srv://afankul42:afankul42@cluster0.mongodb.net/myDatabase?retryWrites=true&w=majority';
 
-mongoose.connect(dbUri, { useNewUrlParser: true })
+mongoose.connect(dbUri)
     .then(() => console.log('MongoDB connected'))
     .catch(err => console.error('MongoDB connection error:', err));
 
