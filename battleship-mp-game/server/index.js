@@ -6,18 +6,12 @@ const app = express();
 
 // Middleware
 app.use(bodyParser.json());
-app.use(cors({
-  origin: 'http://localhost:5173', // Specify the origin of your frontend
-  methods: ['GET', 'POST'], // Allow specific methods
-  allowedHeaders: ['Content-Type'] // Allow specific headers
-}));
+app.use(cors()); // Enable CORS
 
 // MongoDB Connection String
-const dbUri = 'mongodb://afankul42:<db_password>@undefined/?replicaSet=atlas-133yxn-shard-0&ssl=true&authSource=admin';
-mongoose.connect(dbUri, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
+const dbUri = 'mongodb+srv://afankul42:afankul42@cluster0.mongodb.net/myDatabase?retryWrites=true&w=majority';
+
+mongoose.connect(dbUri)
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.error('MongoDB connection error:', err));
 
@@ -41,13 +35,6 @@ app.post('/api/users', async (req, res) => {
     res.status(500).send('Server error');
   }
 });
-
-// Route for handling CORS preflight requests (OPTIONS)
-app.options('*', cors({
-  origin: 'http://localhost:5173',
-  methods: ['GET', 'POST'],
-  allowedHeaders: ['Content-Type']
-}));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
