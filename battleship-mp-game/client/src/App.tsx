@@ -11,7 +11,7 @@ const App: React.FC = () => {
 
   const handleUsernameSubmit = async () => {
     try {
-      await axios.post('http://localhost:5000/api/users', { username });
+      await axios.post('http://battleship-game-mwca.onrender.com/api/data', { username });
       setGamePhase('setup');
     } catch (err) {
       if (axios.isAxiosError(err)) {
