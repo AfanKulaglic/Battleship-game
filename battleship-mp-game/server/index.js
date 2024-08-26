@@ -16,11 +16,13 @@ app.use(bodyParser.json());
 app.use(cors(corsOptions));  // Enable CORS with options
 
 // MongoDB Connection String
-const dbUri = 'mongodb://afankul42:afankul42@cluster0.mongodb.net/myDatabase?retryWrites=true&w=majority';
+const dbUri = 'mongodb+srv://user0:user0@cluster0.hlaij.mongodb.net/';
 
-mongoose.connect(dbUri)
-    .then(() => console.log('MongoDB connected'))
-    .catch(err => console.error('MongoDB connection error:', err));
+mongoose.connect(dbUri, {
+    serverSelectionTimeoutMS: 50000, // povećaj timeout na 50 sekundi
+})
+.then(() => console.log('MongoDB connected'))
+.catch(err => console.error('MongoDB connection error:', err));
 
 // User Schema and Model
 const userSchema = new mongoose.Schema({
