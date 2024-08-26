@@ -11,15 +11,18 @@ const App: React.FC = () => {
 
   const handleUsernameSubmit = async () => {
     try {
-      await axios.post('http://battleship-game-mwca.onrender.com/api/users', { username });
+      // Promeni URL na tvoj backend URL na Render.com
+      const response = await axios.post('https://battleship-game-mwca.onrender.com/api/users', { username });
+      console.log('Response:', response.data);
       setGamePhase('setup');
     } catch (err) {
       if (axios.isAxiosError(err)) {
         console.error('Error details:', err.response?.data || err.message);
+        setError(`Error: ${err.message}`);
       } else {
         console.error('Unexpected error:', err);
+        setError('Unexpected error occurred');
       }
-      setError('Failed to submit username');
     }
   };
 
