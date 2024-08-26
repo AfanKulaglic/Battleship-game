@@ -13,7 +13,7 @@ app.use(cors({
 }));
 
 // MongoDB Connection String
-const dbUri = 'mongodb+srv://user0:user0@cluster0.hlaij.mongodb.net/';
+const dbUri = 'mongodb://afankul42:<db_password>@undefined/?replicaSet=atlas-133yxn-shard-0&ssl=true&authSource=admin';
 mongoose.connect(dbUri, {
   useNewUrlParser: true,
   useUnifiedTopology: true
