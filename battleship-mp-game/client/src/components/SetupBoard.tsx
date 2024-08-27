@@ -98,7 +98,7 @@ const SetupBoard: React.FC<{ onSetupComplete: (board: number[][]) => void }> = (
     );
 
     try {
-      const response = await fetch('http://localhost:5000/api/update-ships', {
+      const response = await fetch('https://battleship-game-mwca.onrender.com/api/update-ships', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
