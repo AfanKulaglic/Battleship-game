@@ -26,7 +26,11 @@ mongoose.connect(dbUri, {
 
 // User Schema and Model
 const userSchema = new mongoose.Schema({
-    username: { type: String, required: true }
+    username: { type: String, required: true },
+    ships: {
+        type: Array,
+        default: []  // Inicijalno prazan niz za brodove
+    }
 });
 const User = mongoose.model('User', userSchema);
 
@@ -44,6 +48,28 @@ app.post('/api/users', async (req, res) => {
         res.status(500).send('Server error');
     }
 });
+
+// PUT ruta za ažuriranje brodova korisnika
+app.put('/api/users/:userId/ships', async (req, res) => {
+    const { userId } = req.params;
+    const { ships } = req.body; // ships će biti niz matrica koje opisuju položaj brodova
+    
+    try {
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).send('User not found');
+        }
+
+        user.ships = ships;
+        await user.save();
+
+        res.status(200).send('Ships updated');
+    } catch (err) {
+        console.error('Error:', err);
+        res.status(500).send('Server error');
+    }
+});
+
 
 // Handle preflight requests
 app.options('*', cors(corsOptions)); // Pre-flight requests
