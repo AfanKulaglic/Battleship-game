@@ -6,7 +6,7 @@ const app = express();
 
 // CORS Options
 const corsOptions = {
-    origin: ['http://localhost:5173'],  // Enable requests from local and hosted frontend
+    origin: ['http://localhost:5173'],  // Omogući zahteve sa lokalnog i hostovanog front-end-a
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type'],
 };
@@ -19,7 +19,7 @@ app.use(cors(corsOptions));  // Enable CORS with options
 const dbUri = 'mongodb+srv://user0:user0@cluster0.hlaij.mongodb.net/';
 
 mongoose.connect(dbUri, {
-    serverSelectionTimeoutMS: 5000, // Increase timeout to 50 seconds
+    serverSelectionTimeoutMS: 5000, // povećaj timeout na 50 sekundi
 })
 .then(() => console.log('MongoDB connected'))
 .catch(err => console.error('MongoDB connection error:', err));
@@ -29,13 +29,6 @@ const userSchema = new mongoose.Schema({
     username: { type: String, required: true }
 });
 const User = mongoose.model('User', userSchema);
-
-// Ship Schema and Model
-const shipSchema = new mongoose.Schema({
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    board: { type: [[Number]], required: true } // 2D array representing the board
-});
-const Ship = mongoose.model('Ship', shipSchema);
 
 // Route to handle username submission
 app.post('/api/users', async (req, res) => {
@@ -52,25 +45,24 @@ app.post('/api/users', async (req, res) => {
     }
 });
 
-// Route to save ship placement for a user
-app.post('/api/ships', async (req, res) => {
+app.post('/api/update-ships', async (req, res) => {
     try {
-        const { userId, board } = req.body;
-        if (!userId || !board) return res.status(400).send('User ID and board are required');
-
-        // Find the user to ensure they exist (optional)
-        const user = await User.findById(userId);
-        if (!user) return res.status(404).send('User not found');
-
-        // Save the ship configuration
-        const newShip = new Ship({ userId, board });
-        await newShip.save();
-        res.status(201).send('Ships saved');
+      const { ships } = req.body;
+      if (!ships) return res.status(400).send('Ship data is required');
+  
+      // Assuming you have user authentication and a user ID
+      const userId = 'some-user-id'; // Replace with actual user ID
+  
+      // Update ship placements in the database
+      // Assuming you have a User model with a 'ships' field
+      await User.findByIdAndUpdate(userId, { $set: { ships: ships } });
+  
+      res.status(200).send('Ships updated successfully');
     } catch (err) {
-        console.error('Error:', err);
-        res.status(500).send('Server error');
+      console.error('Error:', err);
+      res.status(500).send('Server error');
     }
-});
+  });
 
 // Handle preflight requests
 app.options('*', cors(corsOptions)); // Pre-flight requests

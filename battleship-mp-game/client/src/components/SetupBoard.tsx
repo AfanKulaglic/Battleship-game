@@ -88,7 +88,7 @@ const SetupBoard: React.FC<{ onSetupComplete: (board: number[][]) => void }> = (
     setOrientation(newOrientation);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (shipsPlaced < maxShips) {
       alert('Morate postaviti sve brodove pre nego što završite!');
       return;
@@ -96,7 +96,26 @@ const SetupBoard: React.FC<{ onSetupComplete: (board: number[][]) => void }> = (
     const finalBoard = board.map(row =>
       row.map(cell => (cell === 'ship' ? 1 : 0)) // Convert to number 1 or 0
     );
-    onSetupComplete(finalBoard);
+
+    try {
+      const response = await fetch('http://localhost:5000/api/update-ships', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ships: finalBoard })
+      });
+
+      if (response.ok) {
+        alert('Brodovi su uspešno postavljeni!');
+        onSetupComplete(finalBoard);
+      } else {
+        alert('Došlo je do greške prilikom slanja podataka.');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Došlo je do greške prilikom slanja podataka.');
+    }
   };
 
   return (
