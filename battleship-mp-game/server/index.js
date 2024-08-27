@@ -6,7 +6,7 @@ const app = express();
 
 // CORS Options
 const corsOptions = {
-    origin: ['http://localhost:5173'],  // Omogući zahteve sa lokalnog i hostovanog front-end-a
+    origin: ['http://localhost:5173'],  // Enable requests from local and hosted frontend
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type'],
 };
@@ -19,24 +19,23 @@ app.use(cors(corsOptions));  // Enable CORS with options
 const dbUri = 'mongodb+srv://user0:user0@cluster0.hlaij.mongodb.net/';
 
 mongoose.connect(dbUri, {
-    serverSelectionTimeoutMS: 5000, // povećaj timeout na 50 sekundi
+    serverSelectionTimeoutMS: 5000, // Increase timeout to 50 seconds
 })
 .then(() => console.log('MongoDB connected'))
 .catch(err => console.error('MongoDB connection error:', err));
 
 // User Schema and Model
 const userSchema = new mongoose.Schema({
-    username: { type: String, required: true },
-    ships: [
-        {
-            row: { type: Number, required: true },
-            col: { type: Number, required: true },
-            orientation: { type: String, enum: ['horizontal', 'vertical'], required: true },
-            size: { type: Number, required: true }
-        }
-    ]
+    username: { type: String, required: true }
 });
 const User = mongoose.model('User', userSchema);
+
+// Ship Schema and Model
+const shipSchema = new mongoose.Schema({
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    board: { type: [[Number]], required: true } // 2D array representing the board
+});
+const Ship = mongoose.model('Ship', shipSchema);
 
 // Route to handle username submission
 app.post('/api/users', async (req, res) => {
@@ -53,32 +52,25 @@ app.post('/api/users', async (req, res) => {
     }
 });
 
-// Route to handle updating ship positions
-// Route to update ships for a user
-app.put('/api/users/:userId/ships', async (req, res) => {
+// Route to save ship placement for a user
+app.post('/api/ships', async (req, res) => {
     try {
-        const { userId } = req.params;
-        const { ships } = req.body;
+        const { userId, board } = req.body;
+        if (!userId || !board) return res.status(400).send('User ID and board are required');
 
-        // Validate input
-        if (!ships || !Array.isArray(ships)) {
-            return res.status(400).send('Invalid ships data');
-        }
-
-        // Update the user's ships
+        // Find the user to ensure they exist (optional)
         const user = await User.findById(userId);
         if (!user) return res.status(404).send('User not found');
 
-        user.ships = ships; // Assuming `ships` is a field in your User model
-        await user.save();
-        res.status(200).send('Ships updated successfully');
+        // Save the ship configuration
+        const newShip = new Ship({ userId, board });
+        await newShip.save();
+        res.status(201).send('Ships saved');
     } catch (err) {
         console.error('Error:', err);
         res.status(500).send('Server error');
     }
 });
-
-
 
 // Handle preflight requests
 app.options('*', cors(corsOptions)); // Pre-flight requests
