@@ -19,7 +19,7 @@ app.use(cors(corsOptions));  // Enable CORS with options
 const dbUri = 'mongodb+srv://user0:user0@cluster0.hlaij.mongodb.net/';
 
 mongoose.connect(dbUri, {
-    serverSelectionTimeoutMS: 50000, // povećaj timeout na 50 sekundi
+    serverSelectionTimeoutMS: 5000, // povećaj timeout na 50 sekundi
 })
 .then(() => console.log('MongoDB connected'))
 .catch(err => console.error('MongoDB connection error:', err));
