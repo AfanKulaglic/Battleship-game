@@ -14,7 +14,6 @@ const SetupBoard: React.FC<{ onSetupComplete: (board: number[][]) => void }> = (
     const [orientation, setOrientation] = useState<'horizontal' | 'vertical'>('horizontal');
     const [shipsPlaced, setShipsPlaced] = useState<number>(0);
     const [placedShips, setPlacedShips] = useState<Map<number, { row: number, col: number, orientation: 'horizontal' | 'vertical' }>>(new Map());
-    const [userId] = useState<string>(''); // Assume you get userId from Auth or other means
 
     const canPlaceShip = (row: number, col: number, length: number, orientation: 'horizontal' | 'vertical'): boolean => {
         if (orientation === 'horizontal') {
@@ -88,29 +87,24 @@ const SetupBoard: React.FC<{ onSetupComplete: (board: number[][]) => void }> = (
     };
 
     const handleSubmit = async () => {
-        if (shipsPlaced < maxShips) {
-            alert('Morate postaviti sve brodove pre nego što završite!');
-            return;
-        }
-        const finalBoard = board.map(row =>
-            row.map(cell => (cell === 'ship' ? 1 : 0))
-        );
+      if (shipsPlaced < maxShips) {
+          alert('Morate postaviti sve brodove pre nego što završite!');
+          return;
+      }
+      const finalBoard = board.map(row =>
+          row.map(cell => (cell === 'ship' ? 1 : 0)) // Convert to number 1 or 0
+      );
 
-        const ships = Array.from(placedShips.values()).map(({ row, col, orientation }) => ({
-            row,
-            col,
-            orientation,
-            size: currentShip.length
-        }));
-
-        try {
-            await axios.put(`https://battleship-game-mwca.onrender.com/api/users/${userId}/ships`, { ships });
-            onSetupComplete(finalBoard);
-        } catch (err) {
-            console.error('Error updating ships:', err);
-            alert('Failed to update ships');
-        }
-    };
+      // Assuming you have userId available (e.g., from context or props)
+      const userId = 'some-user-id'; // Replace with actual user ID
+      try {
+          const response = await axios.put(`https://battleship-game-mwca.onrender.com/api/users/${userId}/ships`, { ships: finalBoard });
+          console.log('Response:', response.data);
+          onSetupComplete(finalBoard);
+      } catch (err) {
+          console.error('Error updating ships:', err);
+      }
+  };
 
     return (
         <div>

@@ -54,23 +54,30 @@ app.post('/api/users', async (req, res) => {
 });
 
 // Route to handle updating ship positions
-app.put('/api/users/:id/ships', async (req, res) => {
+// Route to update ships for a user
+app.put('/api/users/:userId/ships', async (req, res) => {
     try {
-        const userId = req.params.id;
+        const { userId } = req.params;
         const { ships } = req.body;
-        if (!ships || !Array.isArray(ships)) return res.status(400).send('Invalid ships data');
 
+        // Validate input
+        if (!ships || !Array.isArray(ships)) {
+            return res.status(400).send('Invalid ships data');
+        }
+
+        // Update the user's ships
         const user = await User.findById(userId);
         if (!user) return res.status(404).send('User not found');
 
-        user.ships = ships;
+        user.ships = ships; // Assuming `ships` is a field in your User model
         await user.save();
-        res.status(200).send('Ships updated');
+        res.status(200).send('Ships updated successfully');
     } catch (err) {
         console.error('Error:', err);
         res.status(500).send('Server error');
     }
 });
+
 
 
 // Handle preflight requests
