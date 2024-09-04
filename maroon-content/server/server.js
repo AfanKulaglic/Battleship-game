@@ -9,18 +9,18 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Putanja do direktorija za upload
+// Directory for uploads
 const uploadDir = path.join(__dirname, 'uploads');
 
-// Provjeri da li direktorij postoji, ako ne, kreiraj ga
+// Ensure directory exists
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
 
-// Multer setup za upload
+// Multer setup for upload
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, uploadDir); // Koristi putanju do direktorija
+    cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
     cb(null, Date.now() + path.extname(file.originalname));
@@ -29,40 +29,54 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// MongoDB povezivanje
+// MongoDB connection
 mongoose.connect("mongodb+srv://user0:user0@cluster0.hlaij.mongodb.net/")
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
 const Schema = mongoose.Schema;
 
-// Definiranje MongoDB schema
+// Define MongoDB schemas
 const fileSchema = new Schema({
   title: String,
-  filePath: String
+  filePath: String,
+  type: String // 'news' or 'video'
 });
 
 const FileModel = mongoose.model("File", fileSchema);
 
-// Route za primanje podataka
-app.post("/upload", upload.single("file"), (req, res) => {
+// Route for news file upload
+app.post("/upload-news", upload.single("file"), (req, res) => {
   const newFile = new FileModel({
     title: req.body.title,
-    filePath: req.file.filename
+    filePath: req.file.filename,
+    type: 'news'
   });
   newFile.save()
-    .then(() => res.json({ message: "File uploaded successfully" }))
+    .then(() => res.json({ message: "News file uploaded successfully" }))
     .catch((error) => res.status(500).json({ error }));
 });
 
-// Route za dohvat svih datoteka
+// Route for video file upload
+app.post("/upload-video", upload.single("file"), (req, res) => {
+  const newFile = new FileModel({
+    title: req.body.title,
+    filePath: req.file.filename,
+    type: 'video'
+  });
+  newFile.save()
+    .then(() => res.json({ message: "Video file uploaded successfully" }))
+    .catch((error) => res.status(500).json({ error }));
+});
+
+// Route to get all files
 app.get('/files', (req, res) => {
   FileModel.find()
     .then(files => res.json(files))
     .catch(error => res.status(500).json({ error }));
 });
 
-// Middleware za posluživanje slika
+// Serve static files
 app.use('/uploads', express.static(uploadDir));
 
 const PORT = process.env.PORT || 5000;
