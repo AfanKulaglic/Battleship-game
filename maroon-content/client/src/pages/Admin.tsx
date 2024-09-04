@@ -86,7 +86,7 @@ export const Admin: React.FC = () => {
                 <Accordion.Header>News Data</Accordion.Header>
                 <Accordion.Body>
                   <Form.Group as={Col} md="4">
-                    <Form.Label className="text-white">Video-Hero (mp4)</Form.Label>
+                    <Form.Label className="text-white">Title</Form.Label>
                     <Form.Control
                       required
                       type="text"
@@ -94,6 +94,49 @@ export const Admin: React.FC = () => {
                       value={state.title}
                       onChange={handleTitleChange}
                     />
+                    <Form.Label className="text-white">Image (jpg/jpeg/png)</Form.Label>
+                    <Form.Control
+                      type="file"
+                      required
+                      name="file"
+                      onChange={handleFileChange}
+                    />
+                    <Button onClick={handleSubmit}>Submit</Button>
+                  </Form.Group>
+                </Accordion.Body>
+              </Accordion.Item>
+              <Accordion.Item eventKey="0">
+                <h2 className="text-white m-3">Video</h2>
+
+                {files.map((file) => (
+                  <div key={file._id}>
+                    <h3>{file.title}</h3>
+                    <img
+                      src={`http://localhost:5000/uploads/${file.filePath}`}
+                      alt={file.title}
+                      style={{ width: "100px", height: "100px" }}
+                    />
+                    <video
+                      autoPlay
+                      muted
+                      src={`http://localhost:5000/uploads/${file.filePath}`}
+                      style={{ width: "200px", height: "100px" }}
+                    />
+                  </div>
+                ))}
+
+                <Accordion.Header>Video Data</Accordion.Header>
+                <Accordion.Body>
+                  <Form.Group as={Col} md="4">
+                    <Form.Label className="text-white">Title</Form.Label>
+                    <Form.Control
+                      required
+                      type="text"
+                      placeholder="Add title"
+                      value={state.title}
+                      onChange={handleTitleChange}
+                    />
+                    <Form.Label className="text-white">Video (mp4)</Form.Label>
                     <Form.Control
                       type="file"
                       required
