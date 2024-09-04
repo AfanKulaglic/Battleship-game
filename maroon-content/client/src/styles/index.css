@@ -1,7 +1,8 @@
 @font-face {
-  font-family: "myFont";
-  src: url("../assets/UltraStyle1312.ttf") format("truetype");
+  font-family: 'myFont';
+  src: url("../assets/gunplay rg.otf") format("truetype");
 }
+
 body {
   font-family: "myFont", sans-serif;
   margin: 0;
@@ -49,7 +50,7 @@ body {
 }
 
 #navigation-icons:nth-child(1) {
-  border: 2px solid rgb(88, 88, 88);
+  border: 2px solid #585858;
 }
 
 #navigation-icons:hover {
@@ -200,9 +201,7 @@ body {
   transition: transform 0.3s ease;
   flex-direction: column;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.514);
-  -webkit-user-select: none;
-     -moz-user-select: none;
-          user-select: none;
+  user-select: none;
 }
 
 .special-showcase-col:hover {
@@ -225,6 +224,7 @@ body {
   font-size: 3vh;
   color: white;
 }
+
 .special-showcase-col h2 .box {
   box-shadow: -1px -1px 0 black, 1px 1px 0 black;
 }
@@ -238,11 +238,6 @@ body {
   font-size: 2.5vh;
   margin-top: 1vh;
   margin-bottom: 1vh;
-}
-
-.special-showcase .btn-array::-moz-selection {
-  background-color: #1f0202;
-  border: 1px solid #1f0202;
 }
 
 .special-showcase .btn-array:focus,
@@ -400,11 +395,6 @@ body {
   color: white;
 }
 
-.video-controller .btn-array::-moz-selection {
-  background-color: #1f0202;
-  border: 1px solid #1f0202;
-}
-
 .video-controller .btn-array:focus,
 .video-controller .btn-array:hover,
 .video-controller .btn-array::selection {
@@ -512,9 +502,7 @@ body {
   padding-bottom: 3vh;
   padding-left: 0px;
   overflow: hidden;
-  -webkit-user-select: none;
-     -moz-user-select: none;
-          user-select: none;
+  user-select: none;
 }
 
 .last-games-title {
@@ -553,11 +541,6 @@ body {
   color: white;
 }
 
-.last-games-controller .btn-array::-moz-selection {
-  background-color: #1f0202;
-  border: 1px solid #1f0202;
-}
-
 .last-games-controller .btn-array:focus,
 .last-games-controller .btn-array:hover,
 .last-games-controller .btn-array::selection {
@@ -585,9 +568,7 @@ body {
   display: flex;
   flex-direction: column;
   height: 100%;
-  -webkit-user-select: none;
-     -moz-user-select: none;
-          user-select: none;
+  user-select: none;
 }
 
 .bi-play-circle {
@@ -615,17 +596,13 @@ body {
   height: 6vh;
   margin-right: 1vh;
   margin-top: 1vh;
-  -webkit-user-select: none;
-     -moz-user-select: none;
-          user-select: none;
+  user-select: none;
 }
 
 .last-games-away-logo {
   height: 6vh;
   margin-top: 1vh;
-  -webkit-user-select: none;
-     -moz-user-select: none;
-          user-select: none;
+  user-select: none;
 }
 
 .last-games-content .btn-secondary {
@@ -745,11 +722,6 @@ body {
   color: white;
 }
 
-.featured-videos-controller .btn-array::-moz-selection {
-  background-color: #1f0202;
-  border: 1px solid #1f0202;
-}
-
 .featured-videos-controller .btn-array:focus,
 .featured-videos-controller .btn-array:hover,
 .featured-videos-controller .btn-array::selection {
@@ -801,11 +773,6 @@ body {
   color: white;
 }
 
-.highlights-videos-controller .btn-array::-moz-selection {
-  background-color: #1f0202;
-  border: 1px solid #1f0202;
-}
-
 .highlights-videos-controller .btn-array:focus,
 .highlights-videos-controller .btn-array:hover,
 .highlights-videos-controller .btn-array::selection {
@@ -855,11 +822,6 @@ body {
   margin-top: 1vh;
   margin-bottom: 4vh;
   color: white;
-}
-
-.interviews-videos-controller .btn-array::-moz-selection {
-  background-color: #1f0202;
-  border: 1px solid #1f0202;
 }
 
 .interviews-videos-controller .btn-array:focus,
@@ -914,11 +876,6 @@ body {
   font-size: 2.5vh;
   margin-bottom: 1vh;
   color: white;
-}
-
-.history-videos-controller .btn-array::-moz-selection {
-  background-color: #1f0202;
-  border: 1px solid #1f0202;
 }
 
 .history-videos-controller .btn-array:focus,
@@ -980,4 +937,4 @@ body {
   margin-top: auto;
   margin-right: auto;
   margin-left: 2vh;
-}/*# sourceMappingURL=index.css.map */
+}

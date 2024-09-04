@@ -1,63 +1,71 @@
-// server.js
-const express = require('express');
-const multer = require('multer');
-const mongoose = require('mongoose');
-const path = require('path');
-const cors = require('cors');
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
+const multer = require("multer");
+const path = require("path");
+const fs = require('fs');
 
-// Initialize Express
 const app = express();
-const port = 5000;
-
-// Middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
-// Configure multer for file uploads
+// Putanja do direktorija za upload
+const uploadDir = path.join(__dirname, 'uploads');
+
+// Provjeri da li direktorij postoji, ako ne, kreiraj ga
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+// Multer setup za upload
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/');
+    cb(null, uploadDir); // Koristi putanju do direktorija
   },
   filename: (req, file, cb) => {
     cb(null, Date.now() + path.extname(file.originalname));
-  },
+  }
 });
 
 const upload = multer({ storage });
 
-// MongoDB connection
-mongoose.connect('mongodb://localhost:27017/admin', { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log('MongoDB connected'))
-  .catch(err => console.log(err));
+// MongoDB povezivanje
+mongoose.connect("mongodb+srv://user0:user0@cluster0.hlaij.mongodb.net/")
+  .then(() => console.log("MongoDB connected"))
+  .catch((err) => console.error("MongoDB connection error:", err));
 
-// Define a schema for form data
-const FormDataSchema = new mongoose.Schema({
+const Schema = mongoose.Schema;
+
+// Definiranje MongoDB schema
+const fileSchema = new Schema({
   title: String,
-  file: String,
+  filePath: String
 });
 
-const FormData = mongoose.model('FormData', FormDataSchema);
+const FileModel = mongoose.model("File", fileSchema);
 
-// Routes
-app.post('/upload', upload.array('files'), async (req, res) => {
-  try {
-    const { titles } = req.body;
-    const files = req.files.map(file => file.path);
-
-    const formData = titles.map((title, index) => ({
-      title,
-      file: files[index],
-    }));
-
-    await FormData.insertMany(formData);
-    res.status(200).json({ message: 'Files uploaded and data saved' });
-  } catch (error) {
-    res.status(500).json({ message: 'Error uploading files and saving data', error });
-  }
+// Route za primanje podataka
+app.post("/upload", upload.single("file"), (req, res) => {
+  const newFile = new FileModel({
+    title: req.body.title,
+    filePath: req.file.filename
+  });
+  newFile.save()
+    .then(() => res.json({ message: "File uploaded successfully" }))
+    .catch((error) => res.status(500).json({ error }));
 });
 
-// Start server
-app.listen(port, () => {
-  console.log(`Server running on http://localhost:${port}`);
+// Route za dohvat svih datoteka
+app.get('/files', (req, res) => {
+  FileModel.find()
+    .then(files => res.json(files))
+    .catch(error => res.status(500).json({ error }));
+});
+
+// Middleware za posluživanje slika
+app.use('/uploads', express.static(uploadDir));
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
