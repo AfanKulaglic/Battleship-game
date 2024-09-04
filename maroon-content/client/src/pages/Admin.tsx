@@ -152,6 +152,7 @@ export const Admin: React.FC = () => {
                       value={videoState.title}
                       onChange={handleVideoTitleChange}
                     />
+                    <Form.Label className="text-white">Category</Form.Label>
                     <Form.Label className="text-white">Video (mp4)</Form.Label>
                     <Form.Control
                       type="file"
