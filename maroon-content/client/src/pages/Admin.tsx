@@ -5,10 +5,10 @@ import { Navigation } from "../components/Navigation";
 
 interface FileState {
   title: string;
-  file: File | null;
+  file: File | null; // Native File type
 }
 
-interface File {
+interface UploadedFile { // Renamed to avoid conflict
   _id: string;
   title: string;
   filePath: string;
@@ -16,8 +16,8 @@ interface File {
 
 export const Admin: React.FC = () => {
   const [state, setState] = useState<FileState>({
-    title: "",
     file: null,
+    title: "",
   });
 
   const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -47,7 +47,7 @@ export const Admin: React.FC = () => {
       .catch((error) => console.error("Error:", error));
   };
 
-  const [files, setFiles] = useState<File[]>([]);
+  const [files, setFiles] = useState<UploadedFile[]>([]); // Updated type
 
   useEffect(() => {
     fetch("http://localhost:5000/files")
@@ -55,7 +55,6 @@ export const Admin: React.FC = () => {
       .then((data) => setFiles(data))
       .catch((error) => console.error("Error:", error));
   }, []);
-
 
   return (
     <>
@@ -66,6 +65,24 @@ export const Admin: React.FC = () => {
             <Accordion>
               <Accordion.Item eventKey="0">
                 <h2 className="text-white m-3">News</h2>
+
+                {files.map((file) => (
+                  <div key={file._id}>
+                    <h3>{file.title}</h3>
+                    <img
+                      src={`http://localhost:5000/uploads/${file.filePath}`}
+                      alt={file.title}
+                      style={{ width: "100px", height: "100px" }}
+                    />
+                    <video
+                      autoPlay
+                      muted
+                      src={`http://localhost:5000/uploads/${file.filePath}`}
+                      style={{ width: "200px", height: "100px" }}
+                    />
+                  </div>
+                ))}
+
                 <Accordion.Header>News Data</Accordion.Header>
                 <Accordion.Body>
                   <Form.Group as={Col} md="4">
@@ -88,14 +105,6 @@ export const Admin: React.FC = () => {
                 </Accordion.Body>
               </Accordion.Item>
             </Accordion>
-            
-            {files.map((file) => (
-              <div key={file._id}>
-                <h3>{file.title}</h3>
-                <img src={`http://localhost:5000/uploads/${file.filePath}`} alt={file.title} style={{ width: '100px', height: '100px' }} />
-                <video autoPlay muted src={`http://localhost:5000/uploads/${file.filePath}`} style={{ width: '200px', height: '100px' }} />
-              </div>
-            ))}
           </Col>
           <Col
             xs={6}
