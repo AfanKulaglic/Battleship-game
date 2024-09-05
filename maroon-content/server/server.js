@@ -39,11 +39,12 @@ const Schema = mongoose.Schema;
 // Define MongoDB schemas
 const fileSchema = new Schema({
   title: String,
-  filePath: String,
   type: String, // 'news' or 'video'
-  category: String, // New field for video category
+  category: String, // Field for video category
   videoFilePath: String, // Field for video file path
-  imageFilePath: String // Field for image file path
+  imageFilePath: String, // Field for image file path
+  filePath: String, // Field for news file path
+  source: String // Field for video source
 });
 
 const FileModel = mongoose.model("File", fileSchema);
@@ -52,8 +53,8 @@ const FileModel = mongoose.model("File", fileSchema);
 app.post("/upload-news", upload.single("file"), (req, res) => {
   const newFile = new FileModel({
     title: req.body.title,
-    filePath: req.file.filename,
-    type: 'news'
+    type: 'news',
+    filePath: req.file.filename // News file path
   });
   newFile.save()
     .then(() => res.json({ message: "News file uploaded successfully" }))
@@ -64,11 +65,11 @@ app.post("/upload-news", upload.single("file"), (req, res) => {
 app.post("/upload-video", upload.fields([{ name: 'file' }, { name: 'image' }]), (req, res) => {
   const newFile = new FileModel({
     title: req.body.title,
-    filePath: req.files['file'][0].filename,
     type: 'video',
-    category: req.body.category,
+    category: req.body.category || "", // Default to empty string if not provided
     videoFilePath: req.files['file'][0].filename,
-    imageFilePath: req.files['image'][0].filename
+    imageFilePath: req.files['image'][0].filename,
+    source: req.body.source || "" // Add video source
   });
   newFile.save()
     .then(() => res.json({ message: "Video file uploaded successfully" }))
