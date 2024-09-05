@@ -6,6 +6,7 @@ import { Navigation } from "../components/Navigation";
 interface FileState {
   title: string;
   file: File | null;
+  category: string; // New category field
 }
 
 interface UploadedFile {
@@ -13,11 +14,12 @@ interface UploadedFile {
   title: string;
   filePath: string;
   type: string; // 'news' or 'video'
+  category?: string; // Optional category field for videos
 }
 
 export const Admin: React.FC = () => {
-  const [newsState, setNewsState] = useState<FileState>({ file: null, title: "" });
-  const [videoState, setVideoState] = useState<FileState>({ file: null, title: "" });
+  const [newsState, setNewsState] = useState<FileState>({ file: null, title: "", category: "" });
+  const [videoState, setVideoState] = useState<FileState>({ file: null, title: "", category: "" });
   const [files, setFiles] = useState<UploadedFile[]>([]);
 
   const handleNewsTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -26,6 +28,10 @@ export const Admin: React.FC = () => {
 
   const handleVideoTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setVideoState({ ...videoState, title: e.target.value });
+  };
+
+  const handleVideoCategoryChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setVideoState({ ...videoState, category: e.target.value });
   };
 
   const handleNewsFileChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -64,6 +70,7 @@ export const Admin: React.FC = () => {
     const formData = new FormData();
     formData.append("title", videoState.title);
     formData.append("file", videoState.file);
+    formData.append("category", videoState.category); // Add category
 
     fetch("http://localhost:5000/upload-video", {
       method: "POST",
@@ -89,13 +96,6 @@ export const Admin: React.FC = () => {
           <Col xs={6} className="admin-col">
             <Accordion>
               <Accordion.Item eventKey="0">
-              {files.map((file) => (
-              <div key={file._id}>
-                <h3>{file.title}</h3>
-                <img src={`http://localhost:5000/uploads/${file.filePath}`} alt={file.title} style={{ width: '100px', height: '100px' }} />
-                <video autoPlay muted src={`http://localhost:5000/uploads/${file.filePath}`} style={{ width: '200px', height: '100px' }} />
-              </div>
-            ))}
                 <Accordion.Header>News Data</Accordion.Header>
                 <Accordion.Body>
                   {files.filter(file => file.type === 'news').map((file) => (
@@ -135,11 +135,17 @@ export const Admin: React.FC = () => {
                   {files.filter(file => file.type === 'video').map((file) => (
                     <div key={file._id}>
                       <h3>{file.title}</h3>
+                      <p>Category: {file.category || "N/A"}</p>
                       <video
                         autoPlay
                         muted
                         src={`http://localhost:5000/uploads/${file.filePath}`}
                         style={{ width: "200px", height: "100px" }}
+                      />
+                      <img
+                        src={`http://localhost:5000/uploads/${file.filePath}`}
+                        alt={file.title}
+                        style={{ width: "100px", height: "100px" }}
                       />
                     </div>
                   ))}
@@ -153,6 +159,13 @@ export const Admin: React.FC = () => {
                       onChange={handleVideoTitleChange}
                     />
                     <Form.Label className="text-white">Category</Form.Label>
+                    <Form.Control
+                      required
+                      type="text"
+                      placeholder="Add category"
+                      value={videoState.category}
+                      onChange={handleVideoCategoryChange}
+                    />
                     <Form.Label className="text-white">Video (mp4)</Form.Label>
                     <Form.Control
                       type="file"
@@ -166,11 +179,7 @@ export const Admin: React.FC = () => {
               </Accordion.Item>
             </Accordion>
           </Col>
-          <Col
-            xs={6}
-            className="admin-col"
-            style={{ backgroundImage: `url(${image})` }}
-          ></Col>
+          <Col xs={6} className="admin-col" style={{ backgroundImage: `url(${image})` }}></Col>
         </Row>
       </div>
     </>

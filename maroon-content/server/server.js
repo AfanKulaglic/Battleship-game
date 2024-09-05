@@ -40,7 +40,8 @@ const Schema = mongoose.Schema;
 const fileSchema = new Schema({
   title: String,
   filePath: String,
-  type: String // 'news' or 'video'
+  type: String, // 'news' or 'video'
+  category: String // New field for video category
 });
 
 const FileModel = mongoose.model("File", fileSchema);
@@ -57,12 +58,13 @@ app.post("/upload-news", upload.single("file"), (req, res) => {
     .catch((error) => res.status(500).json({ error }));
 });
 
-// Route for video file upload
+// Route for video file upload with category
 app.post("/upload-video", upload.single("file"), (req, res) => {
   const newFile = new FileModel({
     title: req.body.title,
     filePath: req.file.filename,
-    type: 'video'
+    type: 'video',
+    category: req.body.category // Capture the category from the frontend
   });
   newFile.save()
     .then(() => res.json({ message: "Video file uploaded successfully" }))
