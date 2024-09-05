@@ -6,20 +6,25 @@ import { Navigation } from "../components/Navigation";
 interface FileState {
   title: string;
   file: File | null;
-  category: string; // New category field
+  category?: string;
+  image?: File | null;
+  source?: string; // Added source for video
 }
 
 interface UploadedFile {
   _id: string;
   title: string;
-  filePath: string;
-  type: string; // 'news' or 'video'
-  category?: string; // Optional category field for videos
+  type: string;
+  category?: string;
+  videoFilePath?: string;
+  imageFilePath?: string;
+  filePath?: string;
+  source?: string; // Added source for video
 }
 
 export const Admin: React.FC = () => {
-  const [newsState, setNewsState] = useState<FileState>({ file: null, title: "", category: "" });
-  const [videoState, setVideoState] = useState<FileState>({ file: null, title: "", category: "" });
+  const [newsState, setNewsState] = useState<FileState>({ file: null, title: "" });
+  const [videoState, setVideoState] = useState<FileState>({ file: null, title: "", category: "", image: null, source: "" });
   const [files, setFiles] = useState<UploadedFile[]>([]);
 
   const handleNewsTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -34,6 +39,10 @@ export const Admin: React.FC = () => {
     setVideoState({ ...videoState, category: e.target.value });
   };
 
+  const handleVideoSourceChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setVideoState({ ...videoState, source: e.target.value });
+  };
+
   const handleNewsFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       setNewsState({ ...newsState, file: e.target.files[0] });
@@ -43,6 +52,12 @@ export const Admin: React.FC = () => {
   const handleVideoFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       setVideoState({ ...videoState, file: e.target.files[0] });
+    }
+  };
+
+  const handleVideoImageFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setVideoState({ ...videoState, image: e.target.files[0] });
     }
   };
 
@@ -65,12 +80,14 @@ export const Admin: React.FC = () => {
 
   const handleVideoSubmit = (e: FormEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    if (!videoState.file) return;
+    if (!videoState.file || !videoState.image) return;
 
     const formData = new FormData();
     formData.append("title", videoState.title);
     formData.append("file", videoState.file);
-    formData.append("category", videoState.category); // Add category
+    formData.append("category", videoState.category || "");
+    formData.append("image", videoState.image);
+    formData.append("source", videoState.source || ""); // Add video source
 
     fetch("http://localhost:5000/upload-video", {
       method: "POST",
@@ -101,11 +118,13 @@ export const Admin: React.FC = () => {
                   {files.filter(file => file.type === 'news').map((file) => (
                     <div key={file._id}>
                       <h3>{file.title}</h3>
-                      <img
-                        src={`http://localhost:5000/uploads/${file.filePath}`}
-                        alt={file.title}
-                        style={{ width: "100px", height: "100px" }}
-                      />
+                      {file.filePath && (
+                        <img
+                          src={`http://localhost:5000/uploads/${file.filePath}`}
+                          alt={file.title}
+                          style={{ width: "100px", height: "100px" }}
+                        />
+                      )}
                     </div>
                   ))}
                   <Form.Group as={Col} md="4">
@@ -136,17 +155,24 @@ export const Admin: React.FC = () => {
                     <div key={file._id}>
                       <h3>{file.title}</h3>
                       <p>Category: {file.category || "N/A"}</p>
-                      <video
-                        autoPlay
-                        muted
-                        src={`http://localhost:5000/uploads/${file.filePath}`}
-                        style={{ width: "200px", height: "100px" }}
-                      />
-                      <img
-                        src={`http://localhost:5000/uploads/${file.filePath}`}
-                        alt={file.title}
-                        style={{ width: "100px", height: "100px" }}
-                      />
+                      {file.videoFilePath && (
+                        <video
+                          autoPlay
+                          muted
+                          src={`http://localhost:5000/uploads/${file.videoFilePath}`}
+                          style={{ width: "200px", height: "100px" }}
+                        />
+                      )}
+                      {file.imageFilePath && (
+                        <img
+                          src={`http://localhost:5000/uploads/${file.imageFilePath}`}
+                          alt={file.title}
+                          style={{ width: "100px", height: "100px" }}
+                        />
+                      )}
+                      {file.source && (
+                        <p>Source: {file.source}</p> // Display video source
+                      )}
                     </div>
                   ))}
                   <Form.Group as={Col} md="4">
@@ -172,6 +198,21 @@ export const Admin: React.FC = () => {
                       required
                       name="file"
                       onChange={handleVideoFileChange}
+                    />
+                    <Form.Label className="text-white">Thumbnail Image (jpg/jpeg/png)</Form.Label>
+                    <Form.Control
+                      type="file"
+                      required
+                      name="image"
+                      onChange={handleVideoImageFileChange}
+                    />
+                    <Form.Label className="text-white">Video Source</Form.Label>
+                    <Form.Control
+                      required
+                      type="text"
+                      placeholder="Add source"
+                      value={videoState.source}
+                      onChange={handleVideoSourceChange}
                     />
                     <Button onClick={handleVideoSubmit}>Submit</Button>
                   </Form.Group>

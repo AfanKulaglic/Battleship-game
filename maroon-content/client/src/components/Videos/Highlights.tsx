@@ -1,101 +1,87 @@
-import React, { useRef, useState } from 'react'
+import React, { useRef, useState } from 'react';
 import AliceCarousel from "react-alice-carousel";
 import "react-alice-carousel/lib/alice-carousel.css";
-import showcase from "../../assets/video-container.jpg";
 import { Button } from 'react-bootstrap';
+import VideoModal from './VideoModal';
+import { useVideoFiles } from '../../hooks/useVideoFiles'; // Import the custom hook
 
 export const Highlights = () => {
-    const carouselRef = useRef<AliceCarousel | null>(null);
-    const [activeIndex, setActiveIndex] = useState(0);
-  
-    const items: JSX.Element[] = [
-      <div
-        role="presentation"
-        className="highlights-videos-card-col"
-        style={{ backgroundImage: `url(${showcase})` }}
-        key={1}
-      >
-        <div className="highlights-videos-content">
-          <i className="bi bi-play-circle"></i>
-        </div>
-      </div>,
-      <div
-        role="presentation"
-        className="highlights-videos-card-col"
-        style={{ backgroundImage: `url(${showcase})` }}
-        key={2}
-      >
-        <div className="highlights-videos-content">
-          <i className="bi bi-play-circle"></i>
-        </div>
-      </div>,
-      <div
-        role="presentation"
-        className="highlights-videos-card-col"
-        style={{ backgroundImage: `url(${showcase})` }}
-        key={3}
-      >
-        <div className="highlights-videos-content">
-          <i className="bi bi-play-circle"></i>
-        </div>
-      </div>,
-      <div
-        role="presentation"
-        className="highlights-videos-card-col"
-        style={{ backgroundImage: `url(${showcase})` }}
-        key={4}
-      >
-        <div className="highlights-videos-content">
-          <i className="bi bi-play-circle"></i>
-        </div>
-      </div>,
-      <div
-        role="presentation"
-        className="highlights-videos-card-col"
-        style={{ backgroundImage: `url(${showcase})` }}
-        key={5}
-      >
-        <div className="highlights-videos-content">
-          <i className="bi bi-play-circle"></i>
-        </div>
-      </div>,
-      <div
-        role="presentation"
-        className="highlights-videos-card-col"
-        style={{ backgroundImage: `url(${showcase})` }}
-        key={6}
-      >
-        <div className="highlights-videos-content">
-          <i className="bi bi-play-circle"></i>
-        </div>
-      </div>,
-      <div
-        role="presentation"
-        className="highlights-videos-card-col"
-        style={{ backgroundImage: `url(${showcase})` }}
-        key={6}
-      >
-        <div className="highlights-videos-content">
-          <i className="bi bi-play-circle"></i>
-        </div>
-      </div>,
-    ];
-  
-    const handlePrev = () => {
-      const newIndex = activeIndex === 0 ? items.length - 1 : activeIndex - 1;
-      setActiveIndex(newIndex);
-      if (carouselRef.current) {
-        carouselRef.current.slideTo(newIndex);
+  const carouselRef = useRef<AliceCarousel | null>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
+  const [sourceVideo, setSelectedSourceVideo] = useState<string | null>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [startX, setStartX] = useState<number | null>(null);
+
+  const { files, loading, error } = useVideoFiles(); // Use the hook
+
+  const handlePrev = () => {
+    const newIndex = activeIndex === items.length - 1 ? 0 : activeIndex - 1;
+    setActiveIndex(newIndex);
+    if (carouselRef.current) {
+      carouselRef.current.slideTo(newIndex);
+    }
+  };
+
+  const handleNext = () => {
+    const newIndex = activeIndex === items.length - 1 ? 0 : activeIndex + 1;
+    setActiveIndex(newIndex);
+    if (carouselRef.current) {
+      carouselRef.current.slideTo(newIndex);
+    }
+  };
+
+  const handleShow = (videoFilePath: string, source: string) => {
+    setSelectedVideo(videoFilePath);
+    setSelectedSourceVideo(source);
+    setShowModal(true);
+  };
+
+  const handleClose = () => {
+    setShowModal(false);
+    setSelectedVideo(null);
+  };
+
+  const handleMouseDown = (event: React.MouseEvent<HTMLDivElement>) => {
+    setStartX(event.clientX);
+  };
+
+  const handleMouseUp = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (startX !== null) {
+      const threshold = 10; // Adjust this threshold as needed
+      const dragDistance = Math.abs(event.clientX - startX);
+
+      if (dragDistance < threshold) {
+        // Handle click
+        const target = event.currentTarget;
+        const videoFilePath = target.getAttribute('data-video-path') || '';
+        const source = target.getAttribute('data-source') || '';
+        handleShow(videoFilePath, source);
       }
-    };
-  
-    const handleNext = () => {
-      const newIndex = activeIndex === items.length - 1 ? 0 : activeIndex + 1;
-      setActiveIndex(newIndex);
-      if (carouselRef.current) {
-        carouselRef.current.slideTo(newIndex);
-      }
-    };
+    }
+    setStartX(null); // Reset the startX state
+  };
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>{error}</p>;
+
+  const items = files.map((file) => (
+    <div
+      role="presentation"
+      className="highlights-videos-card-col"
+      style={{ backgroundImage: `url(http://localhost:5000/uploads/${file.imageFilePath})` }}
+      key={file._id}
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
+      data-video-path={file.videoFilePath}
+      data-source={file.source}
+    >
+      <div className="highlights-videos-content">
+        <i className="bi bi-play-circle"></i>
+        <h4>{file.title}</h4>
+      </div>
+    </div>
+  )).reverse();
 
   return (
     <div className='highlights-video'>
@@ -121,6 +107,13 @@ export const Highlights = () => {
               <i className="bi bi-arrow-bar-right"></i>
             </Button>
           </div>
+          
+        <VideoModal
+          show={showModal}
+          onClose={handleClose}
+          video={selectedVideo ? `http://localhost:5000/uploads/${selectedVideo}` : ''}
+          source={sourceVideo ? sourceVideo : ''}
+        />
     </div>
   )
 }
