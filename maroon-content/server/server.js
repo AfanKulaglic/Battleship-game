@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const multer = require("multer");
 const path = require("path");
-const fs = require('fs');
+const fs = require("fs");
 
 const app = express();
 app.use(cors());
@@ -41,7 +41,9 @@ const fileSchema = new Schema({
   title: String,
   filePath: String,
   type: String, // 'news' or 'video'
-  category: String // New field for video category
+  category: String, // New field for video category
+  videoFilePath: String, // Field for video file path
+  imageFilePath: String // Field for image file path
 });
 
 const FileModel = mongoose.model("File", fileSchema);
@@ -55,33 +57,35 @@ app.post("/upload-news", upload.single("file"), (req, res) => {
   });
   newFile.save()
     .then(() => res.json({ message: "News file uploaded successfully" }))
-    .catch((error) => res.status(500).json({ error }));
+    .catch((err) => res.status(500).json({ error: err.message }));
 });
 
-// Route for video file upload with category
-app.post("/upload-video", upload.single("file"), (req, res) => {
+// Route for video file upload
+app.post("/upload-video", upload.fields([{ name: 'file' }, { name: 'image' }]), (req, res) => {
   const newFile = new FileModel({
     title: req.body.title,
-    filePath: req.file.filename,
+    filePath: req.files['file'][0].filename,
     type: 'video',
-    category: req.body.category // Capture the category from the frontend
+    category: req.body.category,
+    videoFilePath: req.files['file'][0].filename,
+    imageFilePath: req.files['image'][0].filename
   });
   newFile.save()
     .then(() => res.json({ message: "Video file uploaded successfully" }))
-    .catch((error) => res.status(500).json({ error }));
+    .catch((err) => res.status(500).json({ error: err.message }));
 });
 
 // Route to get all files
-app.get('/files', (req, res) => {
+app.get("/files", (req, res) => {
   FileModel.find()
-    .then(files => res.json(files))
-    .catch(error => res.status(500).json({ error }));
+    .then((files) => res.json(files))
+    .catch((err) => res.status(500).json({ error: err.message }));
 });
 
-// Serve static files
+// Serve uploaded files
 app.use('/uploads', express.static(uploadDir));
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+// Start server
+app.listen(5000, () => {
+  console.log("Server started on port 5000");
 });
